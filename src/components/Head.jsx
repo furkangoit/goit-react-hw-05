@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import css from "./Head.module.css";
 import { Outlet } from "react-router-dom";
 
-const Head = ({ onChange, onClick, searchValue }) => {
+const Head = ({ onClick, searchValue }) => {
+    const [localSearchValue, setLocalSearchValue] = useState(searchValue || "");
+
+    // Sync local state with prop when searchValue changes (e.g., from URL)
+    useEffect(() => {
+        setLocalSearchValue(searchValue || "");
+    }, [searchValue]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        onClick();
+        onClick(localSearchValue);
+    };
+
+    const handleInputChange = (e) => {
+        setLocalSearchValue(e.target.value);
     };
 
     return (
@@ -15,16 +26,13 @@ const Head = ({ onChange, onClick, searchValue }) => {
                     type="text"
                     name="searchMovies"
                     placeholder="Search a movie..."
-                    value={searchValue}
+                    value={localSearchValue}
                     autoComplete="off"
                     className={css.searchBar}
-                    onChange={(e) => {
-                        onChange(e.target.value);
-                    }}
+                    onChange={handleInputChange}
                 />
-                <p>You typed: {searchValue}</p>
                 <button type="submit" className={css.searchBtn}>
-                    Find
+                    Search
                 </button>
             </form>
             <Outlet />

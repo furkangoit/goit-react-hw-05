@@ -12,15 +12,12 @@ export const useData = () => {
 
 export const DataProvider = ({ children }) => {
     const [movie, setMovie] = useState([]);
-    const [search, setSearch] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const value = {
         movie,
         setMovie,
-        search,
-        setSearch,
         isLoading,
         setIsLoading,
         error,

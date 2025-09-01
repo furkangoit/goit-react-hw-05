@@ -1,12 +1,12 @@
-import React from "react";
-import { lazy, Suspense } from "react";
-// import MovieList from "../components/MovieList";
+import React, { lazy, Suspense } from "react";
 import { useData } from "../DataContext";
 import axios from "axios";
 import Head from "../components/Head";
 
+// Lazy load MovieList component
+const MovieList = lazy(() => import("../components/MovieList"));
+
 const MoviesPage = () => {
-    const MovieList = lazy(() => import("../components/MovieList"));
     const APIKey = "0f552bbb3a7946c71382d336324ac39a";
 
     const {
@@ -36,21 +36,23 @@ const MoviesPage = () => {
             );
             setMovie(data.results);
         } catch (error) {
-            setError(error);
-            setError(true);
+            setError("Movies could not be uploaded!");
+            console.error(error);
         } finally {
             setIsLoading(false);
         }
     };
-    const handleChange = (e) => {
-        setSearch(e);
+
+    const handleChange = (value) => {
+        setSearch(value);
     };
 
     if (isLoading) {
         return <h2>Loading...</h2>;
     }
+
     if (error) {
-        return <p>Movies could not uploaded!</p>;
+        return <p>{error}</p>;
     }
 
     return (
@@ -61,7 +63,7 @@ const MoviesPage = () => {
                 onChange={handleChange}
             />
 
-            <Suspense fallback={<div>Loading..</div>}>
+            <Suspense fallback={<div className="loading">Loading movies...</div>}>
                 <MovieList movies={movie} />
             </Suspense>
         </div>

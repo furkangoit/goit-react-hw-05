@@ -1,7 +1,5 @@
-import React from "react";
-import { useEffect } from "react";
-import { useData } from "../DataContext";
-import { useParams, Link, Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, Link, Outlet, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Api_Token =
@@ -9,16 +7,16 @@ const Api_Token =
 
 const MovieDetailsPage = () => {
     const { movieId } = useParams();
-    const { movie, setMovie, isLoading, setIsLoading, error, setError } =
-        useData();
+    const navigate = useNavigate();
+    const [movie, setMovie] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    if (error) {
-        <p>{error}</p>;
-    }
     useEffect(() => {
         const fetchMovieDetails = async () => {
             try {
                 setIsLoading(true);
+                setError(null);
                 const res = await axios.get(
                     `https://api.themoviedb.org/3/movie/${movieId}`,
                     {
@@ -30,7 +28,7 @@ const MovieDetailsPage = () => {
                 );
                 setMovie(res.data);
             } catch (error) {
-                setError(error);
+                setError("Movie details could not be loaded!");
                 console.error(error);
             } finally {
                 setIsLoading(false);
@@ -39,44 +37,72 @@ const MovieDetailsPage = () => {
         fetchMovieDetails();
     }, [movieId]);
 
+    const handleGoBack = () => {
+        navigate(-1);
+    };
+
     if (isLoading) {
         return <h2>Please wait...</h2>;
     }
 
+    if (error) {
+        return (
+            <div>
+                <p>{error}</p>
+                <button onClick={handleGoBack}>Go Back</button>
+            </div>
+        );
+    }
+
     if (!movie) {
-        return <h4>Movie cannot find!</h4>;
+        return (
+            <div>
+                <h4>Movie cannot be found!</h4>
+                <button onClick={handleGoBack}>Go Back</button>
+            </div>
+        );
     }
 
     return (
         <div>
-            <div>
+            <button onClick={handleGoBack} style={{ marginBottom: '20px' }}>
+                Go Back
+            </button>
+
+            <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
                 <div>
                     <img
                         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                         alt={movie.title}
+                        style={{ width: '300px', borderRadius: '8px' }}
                     />
                 </div>
 
-                <h1>{movie.title}</h1>
-                <p>User score:{Math.round(movie.vote_average * 10)}%</p>
-                <h2>Overview</h2>
-                <p>{movie.overview}</p>
-                <h2>Genres</h2>
-                {movie.genres && (
-                    <p>{movie.genres.map((genre) => genre.name).join(",")}</p>
-                )}
+                <div>
+                    <h1>{movie.title}</h1>
+                    <p>User score: {Math.round(movie.vote_average * 10)}%</p>
 
-                <h3>Additional Information</h3>
-                <ul>
-                    <li>
-                        <Link to="cast">Cast</Link>
-                    </li>
-                    <li>
-                        <Link to="reviews">Reviews</Link>
-                    </li>
-                </ul>
-                <Outlet />
+                    <h2>Overview</h2>
+                    <p>{movie.overview}</p>
+
+                    <h2>Genres</h2>
+                    {movie.genres && (
+                        <p>{movie.genres.map((genre) => genre.name).join(", ")}</p>
+                    )}
+                </div>
             </div>
+
+            <h3>Additional Information</h3>
+            <ul>
+                <li>
+                    <Link to="cast">Cast</Link>
+                </li>
+                <li>
+                    <Link to="reviews">Reviews</Link>
+                </li>
+            </ul>
+
+            <Outlet />
         </div>
     );
 };

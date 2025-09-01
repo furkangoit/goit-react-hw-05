@@ -1,35 +1,51 @@
-import React from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
-import { DataProvider } from './DataContext'
-import HomePage from './pages/HomePage'
-import MoviesPage from './pages/MoviesPage'
-import MovieDetailsPage from './pages/MovieDetailsPage'
-import MovieCast from './components/MovieCast'
-import MovieReviews from './components/Movie.Reviews'
-import NotFoundPage from './pages/NotFoundPage'
-import './App.css'
+import React, { lazy, Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { DataProvider } from './DataContext';
+import Navigation from './components/Navigation';
+import './App.css';
+
+// Lazy load all page components for better performance
+const HomePage = lazy(() => import('./pages/HomePage'));
+const MoviesPage = lazy(() => import('./pages/MoviesPage'));
+const MovieDetailsPage = lazy(() => import('./pages/MovieDetailsPage'));
+const MovieCast = lazy(() => import('./components/MovieCast'));
+const MovieReviews = lazy(() => import('./components/Movie.Reviews'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function App() {
   return (
     <DataProvider>
       <div className="App">
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/movies" style={{ marginLeft: '20px' }}>Movies</Link>
-        </nav>
+        <Navigation />
 
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/movies" element={<MoviesPage />} />
-          <Route path="/movieList/:movieId" element={<MovieDetailsPage />}>
-            <Route path="cast" element={<MovieCast />} />
-            <Route path="reviews" element={<MovieReviews />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+        <Suspense fallback={<div className="loading">Loading page...</div>}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/movies" element={<MoviesPage />} />
+            <Route path="/movieList/:movieId" element={<MovieDetailsPage />}>
+              <Route
+                path="cast"
+                element={
+                  <Suspense fallback={<div className="loading">Loading cast...</div>}>
+                    <MovieCast />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="reviews"
+                element={
+                  <Suspense fallback={<div className="loading">Loading reviews...</div>}>
+                    <MovieReviews />
+                  </Suspense>
+                }
+              />
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </div>
     </DataProvider>
-  )
+  );
 }
 
-export default App
+export default App;

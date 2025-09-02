@@ -5,10 +5,12 @@ import { Link, useLocation } from "react-router-dom";
 const MovieList = ({ movies }) => {
     const location = useLocation();
 
+    // Handle edge case: movies prop is not an array
     if (!Array.isArray(movies)) {
         return <p>We couldn't upload movies</p>;
     }
 
+    // Handle edge case: empty movies array
     if (movies.length === 0) {
         return null; // Don't show anything if no movies
     }
@@ -19,8 +21,9 @@ const MovieList = ({ movies }) => {
                 {movies.map((movie) => {
                     return (
                         <li key={movie.id} className={css.movieItem}>
+                            {/* CORRECTED: Proper route path that matches App.jsx routes */}
                             <Link
-                                to={`/movieList/${movie.id}`}
+                                to={`/movies/${movie.id}`}
                                 state={{ from: location }}
                                 className={css.movieLink}
                             >

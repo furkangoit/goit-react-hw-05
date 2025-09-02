@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
@@ -10,12 +10,12 @@ const MovieDetailsPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // useRef to store the 'from' location from location.state
+    const fromRef = useRef(location.state?.from || { pathname: "/" });
+
     const [movie, setMovie] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    // Get the previous location from state, fallback to home or movies
-    const from = location.state?.from || { pathname: "/" };
 
     useEffect(() => {
         const fetchMovieDetails = async () => {
@@ -46,8 +46,9 @@ const MovieDetailsPage = () => {
     }, [movieId]);
 
     const handleGoBack = () => {
-        // Navigate back to the previous location with state preserved
-        navigate(from.pathname + from.search, { replace: true });
+        // Navigate back using the ref value (preserves navigation state)
+        const from = fromRef.current;
+        navigate(from.pathname + (from.search || ""), { replace: true });
     };
 
     if (isLoading) {
@@ -67,7 +68,7 @@ const MovieDetailsPage = () => {
                 <button onClick={handleGoBack} style={{ marginBottom: '20px' }}>
                     ← Go Back
                 </button>
-                <p>{error}</p>
+                <p style={{ color: 'red' }}>{error}</p>
             </div>
         );
     }

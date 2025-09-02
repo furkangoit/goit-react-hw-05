@@ -1,6 +1,5 @@
-import React, { lazy, Suspense, useEffect } from "react";
+import React, { lazy, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useData } from "../DataContext";
 import axios from "axios";
 import Head from "../components/Head";
 
@@ -11,14 +10,10 @@ const MoviesPage = () => {
     const APIKey = "0f552bbb3a7946c71382d336324ac39a";
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const {
-        movie,
-        setMovie,
-        setError,
-        isLoading,
-        setIsLoading,
-        error,
-    } = useData();
+    // Local state for MoviesPage component - NOT using context
+    const [movies, setMovies] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     // Get query from URL parameters
     const query = searchParams.get("query") || "";
@@ -26,7 +21,8 @@ const MoviesPage = () => {
     // Effect to perform search when query parameter changes
     useEffect(() => {
         if (!query.trim()) {
-            setMovie([]); // Clear movies if no query
+            setMovies([]); // Clear movies if no query
+            setError(null);
             return;
         }
 
@@ -44,17 +40,18 @@ const MoviesPage = () => {
                         },
                     }
                 );
-                setMovie(data.results);
+                setMovies(data.results || []);
             } catch (error) {
                 setError("Movies could not be uploaded!");
-                console.error(error);
+                setMovies([]);
+                console.error("Search movies error:", error);
             } finally {
                 setIsLoading(false);
             }
         };
 
         searchMovies();
-    }, [query, setMovie, setError, setIsLoading, APIKey]);
+    }, [query, APIKey]);
 
     // Handle search form submission
     const handleSearch = (searchTerm) => {
@@ -68,38 +65,53 @@ const MoviesPage = () => {
         setSearchParams({ query: searchTerm.trim() });
     };
 
-    // Handle input change (for controlled input)
-    const handleChange = (value) => {
-        // Don't update URL on every keystroke, just update local state
-        // The actual search will happen on form submission
-    };
-
+    // Loading state
     if (isLoading) {
-        return <h2>Loading...</h2>;
+        return (
+            <div>
+                <Head
+                    searchValue={query}
+                    onClick={handleSearch}
+                />
+                <h2>Loading...</h2>
+            </div>
+        );
     }
 
+    // Error state
     if (error) {
-        return <p>{error}</p>;
+        return (
+            <div>
+                <Head
+                    searchValue={query}
+                    onClick={handleSearch}
+                />
+                <p style={{ color: 'red' }}>{error}</p>
+                <p>Please try searching again.</p>
+            </div>
+        );
     }
 
     return (
         <div>
             <Head
                 searchValue={query}
-                onClick={(searchTerm) => handleSearch(searchTerm)}
-                onChange={handleChange}
+                onClick={handleSearch}
             />
 
             {query && (
                 <p>Search results for: "<strong>{query}</strong>"</p>
             )}
 
-            <Suspense fallback={<div className="loading">Loading movies...</div>}>
-                <MovieList movies={movie} />
-            </Suspense>
+            {/* Pass local movies state to MovieList */}
+            <MovieList movies={movies} />
 
-            {query && movie.length === 0 && !isLoading && (
-                <p>No movies found for your search.</p>
+            {query && movies.length === 0 && !isLoading && !error && (
+                <p>No movies found for your search term "{query}".</p>
+            )}
+
+            {!query && (
+                <p>Enter a movie title to search for movies.</p>
             )}
         </div>
     );

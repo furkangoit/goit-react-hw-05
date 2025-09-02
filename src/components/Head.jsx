@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import css from "./Head.module.css";
-import { Outlet } from "react-router-dom";
 
 const Head = ({ onClick, searchValue }) => {
     const [localSearchValue, setLocalSearchValue] = useState(searchValue || "");
@@ -12,6 +11,7 @@ const Head = ({ onClick, searchValue }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        // Pass the current input value to parent
         onClick(localSearchValue);
     };
 
@@ -35,7 +35,6 @@ const Head = ({ onClick, searchValue }) => {
                     Search
                 </button>
             </form>
-            <Outlet />
         </div>
     );
 };

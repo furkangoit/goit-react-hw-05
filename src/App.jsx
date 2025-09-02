@@ -9,7 +9,7 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const MoviesPage = lazy(() => import('./pages/MoviesPage'));
 const MovieDetailsPage = lazy(() => import('./pages/MovieDetailsPage'));
 const MovieCast = lazy(() => import('./components/MovieCast'));
-const MovieReviews = lazy(() => import('./components/Movie.Reviews'));
+const MovieReviews = lazy(() => import('./components/MovieReviews'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function App() {
@@ -18,27 +18,15 @@ function App() {
       <div className="App">
         <Navigation />
 
-        <Suspense fallback={<div className="loading">Loading page...</div>}>
+        {/* Single Suspense wrapper for all routes */}
+        <Suspense fallback={<div className="loading">Loading...</div>}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/movies" element={<MoviesPage />} />
-            <Route path="/movieList/:movieId" element={<MovieDetailsPage />}>
-              <Route
-                path="cast"
-                element={
-                  <Suspense fallback={<div className="loading">Loading cast...</div>}>
-                    <MovieCast />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="reviews"
-                element={
-                  <Suspense fallback={<div className="loading">Loading reviews...</div>}>
-                    <MovieReviews />
-                  </Suspense>
-                }
-              />
+            {/* Correct path for movie details */}
+            <Route path="/movies/:movieId" element={<MovieDetailsPage />}>
+              <Route path="cast" element={<MovieCast />} />
+              <Route path="reviews" element={<MovieReviews />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

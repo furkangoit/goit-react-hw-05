@@ -11,13 +11,14 @@ export const useData = () => {
 };
 
 export const DataProvider = ({ children }) => {
-    const [movie, setMovie] = useState([]);
+    // Context only for HomePage trending movies
+    const [trendingMovies, setTrendingMovies] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const value = {
-        movie,
-        setMovie,
+        trendingMovies,
+        setTrendingMovies,
         isLoading,
         setIsLoading,
         error,

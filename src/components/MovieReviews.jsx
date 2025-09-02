@@ -25,15 +25,18 @@ const MovieReviews = () => {
                         },
                     }
                 );
-                setReviews(res.data.results);
+                setReviews(res.data.results || []);
             } catch (error) {
                 setError("Reviews cannot be displayed!");
-                console.error(error);
+                console.error("Fetch reviews error:", error);
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchReviews();
+
+        if (movieId) {
+            fetchReviews();
+        }
     }, [movieId]);
 
     if (isLoading) {
@@ -41,7 +44,7 @@ const MovieReviews = () => {
     }
 
     if (error) {
-        return <p>{error}</p>;
+        return <p style={{ color: 'red' }}>{error}</p>;
     }
 
     return (
@@ -56,16 +59,38 @@ const MovieReviews = () => {
                             marginBottom: '20px',
                             padding: '15px',
                             border: '1px solid #ddd',
-                            borderRadius: '8px'
+                            borderRadius: '8px',
+                            backgroundColor: '#f9f9f9'
                         }}>
-                            <h4>Review by {review.author}</h4>
-                            <p style={{
+                            <h4 style={{ marginTop: 0, color: '#333' }}>
+                                Review by {review.author}
+                            </h4>
+                            {review.author_details?.rating && (
+                                <p style={{
+                                    margin: '5px 0 10px 0',
+                                    color: '#f39c12',
+                                    fontWeight: 'bold'
+                                }}>
+                                    Rating: {review.author_details.rating}/10 ⭐
+                                </p>
+                            )}
+                            <div style={{
                                 maxHeight: '200px',
                                 overflow: 'auto',
-                                lineHeight: '1.5'
+                                lineHeight: '1.5',
+                                color: '#555'
                             }}>
                                 {review.content}
-                            </p>
+                            </div>
+                            {review.created_at && (
+                                <p style={{
+                                    margin: '10px 0 0 0',
+                                    fontSize: '0.9em',
+                                    color: '#888'
+                                }}>
+                                    Posted: {new Date(review.created_at).toLocaleDateString()}
+                                </p>
+                            )}
                         </li>
                     ))}
                 </ul>

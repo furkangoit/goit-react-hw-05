@@ -1,38 +1,55 @@
-import React, { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { DataProvider } from './DataContext';
-import Navigation from './components/Navigation';
-import './App.css';
-
-// Lazy load all page components for better performance
-const HomePage = lazy(() => import('./pages/HomePage'));
-const MoviesPage = lazy(() => import('./pages/MoviesPage'));
-const MovieDetailsPage = lazy(() => import('./pages/MovieDetailsPage'));
-const MovieCast = lazy(() => import('./components/MovieCast'));
-const MovieReviews = lazy(() => import('./components/MovieReviews'));
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+import { useState, useEffect } from "react";
+import ContactForm from "./components/ContactForm/ContactForm";
+import ContactList from "./components/ContactList/ContactList";
+import SearchBox from "./components/SearchBox/SearchBox";  // Direkt dosya adını kullan
+import data from "./data.json";
+import styles from "./App.module.css";
 
 function App() {
-  return (
-    <DataProvider>
-      <div className="App">
-        <Navigation />
+  const [search, setSearch] = useState("");
+  const [contacts, setContacts] = useState(data);
 
-        {/* Single Suspense wrapper for all routes */}
-        <Suspense fallback={<div className="loading">Loading...</div>}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/movies" element={<MoviesPage />} />
-            {/* Correct path for movie details */}
-            <Route path="/movies/:movieId" element={<MovieDetailsPage />}>
-              <Route path="cast" element={<MovieCast />} />
-              <Route path="reviews" element={<MovieReviews />} />
-            </Route>
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
+  useEffect(() => {
+    const localContacts = localStorage.getItem("contacts");
+    if (localContacts) {
+      try {
+        setContacts(JSON.parse(localContacts));
+      } catch (error) {
+        console.error("LocalStorage verisi parse edilemedi:", error);
+        setContacts(data);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("contacts", JSON.stringify(contacts));
+  }, [contacts]);
+
+  function handleSearch(e) {
+    setSearch(e.target.value.toLowerCase());
+  }
+
+  function addContact(newContact) {
+    setContacts((prevContacts) => [...prevContacts, newContact]);
+  }
+
+  function deleteContact(id) {
+    setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== id));
+  }
+
+  const filteredContacts = contacts.filter((contact) =>
+    contact.name.toLowerCase().includes(search)
+  );
+
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.container}>
+        <h1>Phonebook</h1>
+        <ContactForm onAddContact={addContact} />
+        <SearchBox search={search} handleSearch={handleSearch} />
+        <ContactList contacts={filteredContacts} deleteContact={deleteContact} />
       </div>
-    </DataProvider>
+    </div>
   );
 }
 

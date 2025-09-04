@@ -1,0 +1,48 @@
+.contact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 14px 13px 18px;
+    background: #f9fafc;
+    border-radius: 9px;
+    box-shadow: 0 1px 3px rgba(20, 50, 110, 0.04);
+    border: 1.5px solid #e6ecf3;
+    transition: box-shadow 0.17s;
+}
+
+.contact:hover {
+    box-shadow: 0 4px 18px rgba(36, 87, 206, 0.09);
+    border: 1.5px solid #b5cbf7;
+}
+
+.name {
+    font-weight: 700;
+    color: #103872;
+    margin-right: 12px;
+    font-size: 1.09rem;
+}
+
+.number {
+    color: #53586a;
+    font-size: 1.05rem;
+    margin-left: 4px;
+}
+
+.button {
+    background: linear-gradient(90deg, #fd5a36 70%, #f55151 100%);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 17px;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-left: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 87, 87, 0.07);
+    transition: background 0.18s, transform 0.11s;
+}
+
+.button:hover {
+    background: linear-gradient(90deg, #dd3524 70%, #a70f0f 100%);
+    transform: translateY(-1px) scale(1.04);
+}
